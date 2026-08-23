@@ -6,7 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.isovalidator.iso.DTO.IsoResponseDTO;
 import com.isovalidator.iso.DTO.MessageSummaryResponse;
@@ -32,11 +34,11 @@ public class IsoController {
     consumes = MediaType.APPLICATION_XML_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE
 )
-    public ResponseEntity<IsoResponseDTO> ValidateIsoMsg(@RequestBody String  xml)
+    public ResponseEntity<IsoResponseDTO> ValidateIsoMsg(@RequestBody String  xml,@RequestParam(defaultValue = "ISO20022") String profile)
     {
         log.info("Entering Controller Validate request for Xml {}");
 
-        IsoResponseDTO responseDTO= isoValidateService.validateMsg(xml);
+        IsoResponseDTO responseDTO= isoValidateService.validateMsg(xml,profile);
 
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -55,6 +57,23 @@ public ResponseEntity<MessageSummaryResponse> getMessageSummary(
             messageSummaryServiceImpl.generateSummary(xml);
 
     return ResponseEntity.ok(response);
+}
+
+@PostMapping(
+        value = "/v1/api/xmlvalidate/custom",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
+public ResponseEntity<IsoResponseDTO> validateCustomXsd(
+        @RequestParam("xml") String xml,
+        @RequestParam("xsd") MultipartFile xsdFile
+) {
+
+    
+    IsoResponseDTO responseDTO= isoValidateService.validateWithCustomXsd(
+            xml,
+            xsdFile);
+            return ResponseEntity.ok().body(responseDTO);
 }
 
 }

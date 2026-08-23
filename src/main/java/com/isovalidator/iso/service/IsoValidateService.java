@@ -18,6 +18,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.isovalidator.iso.DTO.IsoResponseDTO;
 //import com.isovalidator.iso.DTO.IsorequestDTO;
@@ -38,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IsoValidateService {
 
-    public IsoResponseDTO validateMsg(String xml)
+    public IsoResponseDTO validateMsg(String xml,String profile)
     {
         log.info("Entering Service Layer");
 
@@ -75,22 +76,24 @@ public class IsoValidateService {
             log.info("Message Type: {}", messageType);
             log.info("Version: {}", version);
 
+            responseDTO.setMessageTyp(messageType);
+            responseDTO.setVersion(version);
+            responseDTO.setNamespace(namespace);
+
+
             // Step 4: Validate against XSD
 
             List<ValidationError> errors =
                 validateAgainstXsd(
                         messageXml,
                         messageType,
-                        version
+                        version,profile
                 );
             
 
             // Step 5: Build successful response
 
-            responseDTO.setMessageTyp(messageType);
-            responseDTO.setVersion(version);
-            responseDTO.setNamespace(namespace);
-
+            
             if (errors.isEmpty()) {
 
             responseDTO.setValid(true);
@@ -115,7 +118,7 @@ public class IsoValidateService {
             log.error("ISO 20022 validation failed", e);
 
              responseDTO.setValid(false);
-            responseDTO.setMessage("Unable to process ISO 20022 message");
+            responseDTO.setMessage("Unable to process ISO 20022 message " + e.getLocalizedMessage());
 
             return responseDTO;
         }
@@ -182,7 +185,7 @@ private String[] extractMessageInfo(String namespace) {
 private List<ValidationError> validateAgainstXsd(
         String  messagexml,
         String messageType,
-        String version) throws Exception {
+        String version,String profile) throws Exception {
 
             List<ValidationError> errors= new ArrayList<>();
 
@@ -190,14 +193,20 @@ private List<ValidationError> validateAgainstXsd(
             {
                 String message[]=messageType.split("\\.");
                 // System.out.println("message array length "+ message.length);
+                String messageString=message[0];
                 String msString=message[0]+message[1];
                 System.out.println("message folder "+ msString);
 
-                String schemaPath =
-                    "/schemas/pacs/" +
-                    msString + "/" +
+                 
+                
+                
+                  String   schemaPath =
+                    "/schemas/" + profile + "/" + messageString + "/" +
+                    //msString + "/" +
                     messageType + "." +
                     version + ".xsd";
+                
+                
 
                     log.info("Loading schema: {}", schemaPath);
 
@@ -207,6 +216,7 @@ private List<ValidationError> validateAgainstXsd(
                     if (xsdStream == null) {
                         throw new IllegalArgumentException(
                                 "XSD schema not found: " + schemaPath);
+                                
                     }
 
                     SchemaFactory schemaFactory =
@@ -309,6 +319,108 @@ private String extractErrorCode(String message) {
     }
 
     return null;
+}
+
+
+
+public IsoResponseDTO validateWithCustomXsd(
+        String xml,
+        MultipartFile xsdFile) 
+        {
+
+        log.info("Entering Service Layer");
+
+        IsoResponseDTO responseDTO= new IsoResponseDTO();
+
+    try {
+
+        validateXsdFile(xsdFile);
+
+        SchemaFactory factory =
+                SchemaFactory.newInstance(
+                        XMLConstants.W3C_XML_SCHEMA_NS_URI
+                );
+
+        factory.setFeature(
+                XMLConstants.FEATURE_SECURE_PROCESSING,
+                true
+        );
+
+        factory.setProperty(
+                XMLConstants.ACCESS_EXTERNAL_DTD,
+                ""
+        );
+
+        factory.setProperty(
+                XMLConstants.ACCESS_EXTERNAL_SCHEMA,
+                ""
+        );
+
+        Schema schema =
+                factory.newSchema(
+                        new StreamSource(
+                                xsdFile.getInputStream()
+                        )
+                );
+
+        Validator validator =
+                schema.newValidator();
+
+        validator.validate(
+                new StreamSource(
+                        new StringReader(xml)
+                )
+        );
+        responseDTO.setValid(true);
+        responseDTO.setMessage("XML is valid against the uploaded XSD");
+        responseDTO.setErrors(null);
+
+       
+
+    } catch (SAXParseException e) {
+
+        String error =
+                String.format(
+                        "Line %d, Column %d: %s",
+                        e.getLineNumber(),
+                        e.getColumnNumber(),
+                        e.getMessage()
+                );
+
+                responseDTO.setValid(false);
+        responseDTO.setMessage("XML validation failed");
+       // responseDTO.setErrors(List.of(error));
+
+        
+
+    } catch (Exception e) {
+
+        responseDTO.setValid(false);
+        responseDTO.setMessage("Custom XSD validation failed");
+       // responseDTO.setErrors(List.of(error));
+        
+
+    }
+    return responseDTO;
+
+}
+
+private void validateXsdFile(
+        MultipartFile xsdFile
+) {
+
+    String fileName =
+            xsdFile.getOriginalFilename();
+
+    if (fileName == null ||
+            !fileName.toLowerCase()
+                    .endsWith(".xsd")) {
+
+        throw new IllegalArgumentException(
+                "Only .xsd files are allowed"
+        );
+    }
+
 }
 
 }
