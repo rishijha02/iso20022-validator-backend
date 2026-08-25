@@ -295,13 +295,25 @@ private String detectIsoNamespace(Document document) {
 private ValidationError createValidationError(
         SAXParseException e) {
 
+                String technicalMessage =
+        e.getMessage();
+
+FriendlyError friendlyError =
+        ValidationErrorTranslator.translate(
+                technicalMessage
+        );
+
     ValidationError error = new ValidationError();
 
     String message = e.getMessage();
     error.setCode(extractErrorCode(message));
-    error.setMessage(e.getMessage());
+    error.setMessage(friendlyError.message());
     error.setLine(e.getLineNumber());
     error.setColumn(e.getColumnNumber());
+    error.setSuggestion(
+        friendlyError.suggestion());
+        error.setTechnicalMessage(
+        technicalMessage);
 
     return error;
 }
@@ -390,6 +402,8 @@ public IsoResponseDTO validateWithCustomXsd(
                 responseDTO.setValid(false);
         responseDTO.setMessage("XML validation failed");
        // responseDTO.setErrors(List.of(error));
+
+       System.out.println(error);
 
         
 

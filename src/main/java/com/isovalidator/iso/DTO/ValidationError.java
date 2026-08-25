@@ -10,4 +10,9 @@ public class ValidationError {
     private int line;
     private int column;
 
+    private String suggestion;
+
+    private String technicalMessage;
+
+
 }
