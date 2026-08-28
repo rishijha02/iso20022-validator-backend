@@ -87,6 +87,20 @@ public class MessageSummaryServiceImpl
 
                     break;
 
+                    case "pacs.004":
+                        generatePacs004Summary(
+                                document,
+                                response
+                        );
+                        break;
+
+                case "pacs.009":
+                        generatePacs009Summary(
+                                document,
+                                response
+                        );
+                        break;
+
 
                 case "pacs.002":
 
@@ -523,6 +537,77 @@ private void generatePacs002Summary(
     response.setTitle(
             "Financial Institution To Financial Institution Payment Status Report"
     );
+
+    // Group Header
+
+    addIfPresent(
+            response,
+            "Message ID",
+            getElementValue(document, "MsgId")
+    );
+
+    addIfPresent(
+            response,
+            "Creation Date",
+            getElementValue(document, "CreDtTm")
+    );
+
+
+    // Original Group Information
+
+    addIfPresent(
+            response,
+            "Original Message ID",
+            getElementValue(document, "OrgnlMsgId")
+    );
+
+    addIfPresent(
+            response,
+            "Original Message Name",
+            getElementValue(document, "OrgnlMsgNmId")
+    );
+
+
+    // Transaction Status
+
+    addIfPresent(
+            response,
+            "Original Instruction ID",
+            getElementValue(document, "OrgnlInstrId")
+    );
+
+    addIfPresent(
+            response,
+            "Original End To End ID",
+            getElementValue(document, "OrgnlEndToEndId")
+    );
+
+    addIfPresent(
+            response,
+            "Original Transaction ID",
+            getElementValue(document, "OrgnlTxId")
+    );
+
+    addIfPresent(
+            response,
+            "Transaction Status",
+            getElementValue(document, "TxSts")
+    );
+
+
+    // Status Reason
+
+    addIfPresent(
+            response,
+            "Status Reason",
+            getElementValue(document, "Cd")
+    );
+
+    addIfPresent(
+            response,
+            "Additional Status Information",
+            getElementValue(document, "AddtlInf")
+    );
 }
 
 private void generatePain001Summary(
@@ -532,6 +617,156 @@ private void generatePain001Summary(
     response.setTitle(
             "Customer Credit Transfer Initiation"
     );
+
+
+    // Group Header
+
+    addIfPresent(
+            response,
+            "Message ID",
+            getElementValue(document, "MsgId")
+    );
+
+    addIfPresent(
+            response,
+            "Creation Date",
+            getElementValue(document, "CreDtTm")
+    );
+
+    addIfPresent(
+            response,
+            "Number of Transactions",
+            getElementValue(document, "NbOfTxs")
+    );
+
+    addIfPresent(
+            response,
+            "Control Sum",
+            getElementValue(document, "CtrlSum")
+    );
+
+
+    // Payment Information
+
+    addIfPresent(
+            response,
+            "Payment Information ID",
+            getElementValue(document, "PmtInfId")
+    );
+
+    addIfPresent(
+            response,
+            "Payment Method",
+            getElementValue(document, "PmtMtd")
+    );
+
+    addIfPresent(
+            response,
+            "Requested Execution Date",
+            getElementValue(document, "ReqdExctnDt")
+    );
+
+
+    // Debtor
+
+    Element debtor =
+            getElement(document, "Dbtr");
+
+    if (debtor != null) {
+
+        addIfPresent(
+                response,
+                "Debtor",
+                getChildElementValue(
+                        debtor,
+                        "Nm"
+                )
+        );
+    }
+
+
+    // Debtor Account
+
+    addIfPresent(
+            response,
+            "Debtor IBAN",
+            getElementValue(document, "IBAN")
+    );
+
+
+    // Creditor
+
+    Element creditor =
+            getElement(document, "Cdtr");
+
+    if (creditor != null) {
+
+        addIfPresent(
+                response,
+                "Creditor",
+                getChildElementValue(
+                        creditor,
+                        "Nm"
+                )
+        );
+    }
+
+
+    // Payment Identification
+
+    addIfPresent(
+            response,
+            "End To End ID",
+            getElementValue(
+                    document,
+                    "EndToEndId"
+            )
+    );
+
+
+    // Amount
+
+    Element amountElement =
+            getElement(
+                    document,
+                    "InstdAmt"
+            );
+
+    if (amountElement != null) {
+
+        response.getSummary().put(
+                "Amount",
+                amountElement
+                        .getTextContent()
+                        .trim()
+        );
+
+        String currency =
+                amountElement.getAttribute(
+                        "Ccy"
+                );
+
+        if (currency != null
+                && !currency.isBlank()) {
+
+            response.getSummary().put(
+                    "Currency",
+                    currency
+            );
+        }
+    }
+
+
+    // Remittance Information
+
+    addIfPresent(
+            response,
+            "Remittance Information",
+            getElementValue(
+                    document,
+                    "Ustrd"
+            )
+    );
 }
 
 private void generateCamt053Summary(
@@ -540,6 +775,813 @@ private void generateCamt053Summary(
 
     response.setTitle(
             "Bank To Customer Statement"
+    );
+
+
+    // Group Header
+
+    addIfPresent(
+            response,
+            "Message ID",
+            getElementValue(
+                    document,
+                    "MsgId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Creation Date",
+            getElementValue(
+                    document,
+                    "CreDtTm"
+            )
+    );
+
+
+    // Statement Information
+
+    addIfPresent(
+            response,
+            "Statement ID",
+            getElementValue(
+                    document,
+                    "Id"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Statement Creation Date",
+            getElementValue(
+                    document,
+                    "CreDtTm"
+            )
+    );
+
+
+    // Account
+
+    Element account =
+            getElement(
+                    document,
+                    "Acct"
+            );
+
+    if (account != null) {
+
+        addIfPresent(
+                response,
+                "Account IBAN",
+                getChildElementValue(
+                        account,
+                        "IBAN"
+                )
+        );
+
+        addIfPresent(
+                response,
+                "Account Currency",
+                getChildElementValue(
+                        account,
+                        "Ccy"
+                )
+        );
+
+        Element owner =
+                getChildElement(
+                        account,
+                        "Ownr"
+                );
+
+        if (owner != null) {
+
+            addIfPresent(
+                    response,
+                    "Account Owner",
+                    getChildElementValue(
+                            owner,
+                            "Nm"
+                    )
+            );
+        }
+    }
+
+
+    // Statement Period
+
+    addIfPresent(
+            response,
+            "Statement From Date",
+            getElementValue(
+                    document,
+                    "FrDtTm"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Statement To Date",
+            getElementValue(
+                    document,
+                    "ToDtTm"
+            )
+    );
+
+
+    // Opening Balance
+
+    addIfPresent(
+            response,
+            "Opening Balance",
+            getBalanceByType(
+                    document,
+                    "OPBD"
+            )
+    );
+
+
+    // Closing Balance
+
+    addIfPresent(
+            response,
+            "Closing Balance",
+            getBalanceByType(
+                    document,
+                    "CLBD"
+            )
+    );
+
+
+    // Transaction Information
+
+    addIfPresent(
+            response,
+            "Number of Entries",
+            String.valueOf(
+                    document
+                            .getElementsByTagNameNS(
+                                    "*",
+                                    "Ntry"
+                            )
+                            .getLength()
+            )
+    );
+
+
+    // First Transaction Amount
+
+    NodeList entries =
+            document.getElementsByTagNameNS(
+                    "*",
+                    "Ntry"
+            );
+
+    if (entries.getLength() > 0) {
+
+        Element firstEntry =
+                (Element) entries.item(0);
+
+        String amount =
+                getChildElementValue(
+                        firstEntry,
+                        "Amt"
+                );
+
+        String creditDebit =
+                getChildElementValue(
+                        firstEntry,
+                        "CdtDbtInd"
+                );
+
+        addIfPresent(
+                response,
+                "First Transaction Amount",
+                amount
+        );
+
+        addIfPresent(
+                response,
+                "First Transaction Type",
+                creditDebit
+        );
+
+        addIfPresent(
+                response,
+                "Booking Date",
+                getChildElementValue(
+                        firstEntry,
+                        "Dt"
+                )
+        );
+    }
+}
+
+private String getBalanceByType(
+        Document document,
+        String balanceType) {
+
+    NodeList balances =
+            document.getElementsByTagNameNS(
+                    "*",
+                    "Bal"
+            );
+
+    for (int i = 0;
+         i < balances.getLength();
+         i++) {
+
+        Element balance =
+                (Element) balances.item(i);
+
+        String type =
+                getChildElementValue(
+                        balance,
+                        "Cd"
+                );
+
+        if (balanceType.equals(type)) {
+
+            return getChildElementValue(
+                    balance,
+                    "Amt"
+            );
+        }
+    }
+
+    return null;
+}
+
+private Element getChildElement(
+        Element parent,
+        String tagName) {
+
+    NodeList nodes =
+            parent.getElementsByTagNameNS(
+                    "*",
+                    tagName
+            );
+
+    if (nodes.getLength() == 0) {
+        return null;
+    }
+
+    return (Element) nodes.item(0);
+}
+
+private void generatePacs004Summary(
+        Document document,
+        MessageSummaryResponse response) {
+
+    response.setTitle(
+            "Payment Return"
+    );
+
+
+    // =========================
+    // GROUP HEADER
+    // =========================
+
+    addIfPresent(
+            response,
+            "Message ID",
+            getElementValue(
+                    document,
+                    "MsgId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Creation Date",
+            getElementValue(
+                    document,
+                    "CreDtTm"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Number of Transactions",
+            getElementValue(
+                    document,
+                    "NbOfTxs"
+            )
+    );
+
+
+    // =========================
+    // RETURN IDENTIFICATION
+    // =========================
+
+    addIfPresent(
+            response,
+            "Return ID",
+            getElementValue(
+                    document,
+                    "RtrId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Original Message ID",
+            getElementValue(
+                    document,
+                    "OrgnlMsgId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Original End To End ID",
+            getElementValue(
+                    document,
+                    "OrgnlEndToEndId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Original Transaction ID",
+            getElementValue(
+                    document,
+                    "OrgnlTxId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Original UETR",
+            getElementValue(
+                    document,
+                    "OrgnlUETR"
+            )
+    );
+
+
+    // =========================
+    // RETURN AMOUNT
+    // =========================
+
+    Element amountElement =
+            getElement(
+                    document,
+                    "RtrdIntrBkSttlmAmt"
+            );
+
+    if (amountElement != null) {
+
+        response.getSummary().put(
+                "Returned Amount",
+                amountElement
+                        .getTextContent()
+                        .trim()
+        );
+
+        String currency =
+                amountElement.getAttribute(
+                        "Ccy"
+                );
+
+        if (currency != null
+                && !currency.isBlank()) {
+
+            response.getSummary().put(
+                    "Currency",
+                    currency
+            );
+        }
+    }
+
+
+    // =========================
+    // RETURN REASON
+    // =========================
+
+    Element returnReason =
+            getElement(
+                    document,
+                    "RtrRsnInf"
+            );
+
+    if (returnReason != null) {
+
+        Element reason =
+                getChildElement(
+                        returnReason,
+                        "Rsn"
+                );
+
+        if (reason != null) {
+
+            addIfPresent(
+                    response,
+                    "Return Reason",
+                    getChildElementValue(
+                            reason,
+                            "Cd"
+                    )
+            );
+
+            addIfPresent(
+                    response,
+                    "Return Reason Details",
+                    getChildElementValue(
+                            reason,
+                            "Prtry"
+                    )
+            );
+        }
+
+        addIfPresent(
+                response,
+                "Additional Information",
+                getChildElementValue(
+                        returnReason,
+                        "AddtlInf"
+                )
+        );
+    }
+
+
+    // =========================
+    // SETTLEMENT
+    // =========================
+
+    addIfPresent(
+            response,
+            "Settlement Date",
+            getElementValue(
+                    document,
+                    "IntrBkSttlmDt"
+            )
+    );
+
+
+    // =========================
+    // RETURNING AGENT
+    // =========================
+
+    Element returningAgent =
+            getElement(
+                    document,
+                    "RtrgAgt"
+            );
+
+    if (returningAgent != null) {
+
+        addIfPresent(
+                response,
+                "Returning Agent BIC",
+                getChildElementValue(
+                        returningAgent,
+                        "BICFI"
+                )
+        );
+    }
+
+
+    // =========================
+    // ORIGINAL CREDITOR
+    // =========================
+
+    Element originalCreditor =
+            getElement(
+                    document,
+                    "OrgnlCdtr"
+            );
+
+    if (originalCreditor != null) {
+
+        addIfPresent(
+                response,
+                "Original Creditor",
+                getChildElementValue(
+                        originalCreditor,
+                        "Nm"
+                )
+        );
+    }
+
+
+    // =========================
+    // ORIGINAL DEBTOR
+    // =========================
+
+    Element originalDebtor =
+            getElement(
+                    document,
+                    "OrgnlDbtr"
+            );
+
+    if (originalDebtor != null) {
+
+        addIfPresent(
+                response,
+                "Original Debtor",
+                getChildElementValue(
+                        originalDebtor,
+                        "Nm"
+                )
+        );
+    }
+}
+
+private void generatePacs009Summary(
+        Document document,
+        MessageSummaryResponse response) {
+
+    response.setTitle(
+            "Financial Institution Credit Transfer"
+    );
+
+
+    // =========================
+    // GROUP HEADER
+    // =========================
+
+    addIfPresent(
+            response,
+            "Message ID",
+            getElementValue(
+                    document,
+                    "MsgId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Creation Date",
+            getElementValue(
+                    document,
+                    "CreDtTm"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Number of Transactions",
+            getElementValue(
+                    document,
+                    "NbOfTxs"
+            )
+    );
+
+
+    // =========================
+    // PAYMENT IDENTIFICATION
+    // =========================
+
+    addIfPresent(
+            response,
+            "Instruction ID",
+            getElementValue(
+                    document,
+                    "InstrId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "End To End ID",
+            getElementValue(
+                    document,
+                    "EndToEndId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "Transaction ID",
+            getElementValue(
+                    document,
+                    "TxId"
+            )
+    );
+
+    addIfPresent(
+            response,
+            "UETR",
+            getElementValue(
+                    document,
+                    "UETR"
+            )
+    );
+
+
+    // =========================
+    // SETTLEMENT AMOUNT
+    // =========================
+
+    Element amountElement =
+            getElement(
+                    document,
+                    "IntrBkSttlmAmt"
+            );
+
+    if (amountElement != null) {
+
+        response.getSummary().put(
+                "Settlement Amount",
+                amountElement
+                        .getTextContent()
+                        .trim()
+        );
+
+        String currency =
+                amountElement.getAttribute(
+                        "Ccy"
+                );
+
+        if (currency != null
+                && !currency.isBlank()) {
+
+            response.getSummary().put(
+                    "Currency",
+                    currency
+            );
+        }
+    }
+
+
+    // =========================
+    // SETTLEMENT DETAILS
+    // =========================
+
+    addIfPresent(
+            response,
+            "Settlement Date",
+            getElementValue(
+                    document,
+                    "IntrBkSttlmDt"
+            )
+    );
+
+
+    // =========================
+    // INSTRUCTING AGENT
+    // =========================
+
+    Element instructingAgent =
+            getElement(
+                    document,
+                    "InstgAgt"
+            );
+
+    if (instructingAgent != null) {
+
+        addIfPresent(
+                response,
+                "Instructing Agent BIC",
+                getChildElementValue(
+                        instructingAgent,
+                        "BICFI"
+                )
+        );
+    }
+
+
+    // =========================
+    // INSTRUCTED AGENT
+    // =========================
+
+    Element instructedAgent =
+            getElement(
+                    document,
+                    "InstdAgt"
+            );
+
+    if (instructedAgent != null) {
+
+        addIfPresent(
+                response,
+                "Instructed Agent BIC",
+                getChildElementValue(
+                        instructedAgent,
+                        "BICFI"
+                )
+        );
+    }
+
+
+    // =========================
+    // DEBTOR
+    // =========================
+
+    Element debtor =
+            getElement(
+                    document,
+                    "Dbtr"
+            );
+
+    if (debtor != null) {
+
+        addIfPresent(
+                response,
+                "Debtor",
+                getChildElementValue(
+                        debtor,
+                        "Nm"
+                )
+        );
+    }
+
+
+    // =========================
+    // DEBTOR AGENT
+    // =========================
+
+    Element debtorAgent =
+            getElement(
+                    document,
+                    "DbtrAgt"
+            );
+
+    if (debtorAgent != null) {
+
+        addIfPresent(
+                response,
+                "Debtor Agent BIC",
+                getChildElementValue(
+                        debtorAgent,
+                        "BICFI"
+                )
+        );
+    }
+
+
+    // =========================
+    // CREDITOR AGENT
+    // =========================
+
+    Element creditorAgent =
+            getElement(
+                    document,
+                    "CdtrAgt"
+            );
+
+    if (creditorAgent != null) {
+
+        addIfPresent(
+                response,
+                "Creditor Agent BIC",
+                getChildElementValue(
+                        creditorAgent,
+                        "BICFI"
+                )
+        );
+    }
+
+
+    // =========================
+    // CREDITOR
+    // =========================
+
+    Element creditor =
+            getElement(
+                    document,
+                    "Cdtr"
+            );
+
+    if (creditor != null) {
+
+        addIfPresent(
+                response,
+                "Creditor",
+                getChildElementValue(
+                        creditor,
+                        "Nm"
+                )
+        );
+    }
+
+
+    // =========================
+    // CHARGE BEARER
+    // =========================
+
+    addIfPresent(
+            response,
+            "Charge Bearer",
+            getElementValue(
+                    document,
+                    "ChrgBr"
+            )
+    );
+
+
+    // =========================
+    // REMITTANCE INFORMATION
+    // =========================
+
+    addIfPresent(
+            response,
+            "Remittance Information",
+            getElementValue(
+                    document,
+                    "Ustrd"
+            )
     );
 }
 
