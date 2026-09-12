@@ -55,6 +55,9 @@ public class Blogs {
 
     private LocalDateTime updatedAt;
 
+    @Column(name = "cover_image_url", columnDefinition = "TEXT")
+    private String coverImageUrl;
+
     @PrePersist
     protected void onCreate() {
 

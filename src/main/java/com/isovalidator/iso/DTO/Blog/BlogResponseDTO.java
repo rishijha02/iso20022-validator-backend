@@ -31,4 +31,6 @@ public class BlogResponseDTO {
 
     private LocalDateTime updatedAt;
 
+    private String coverImageUrl;
+
 }

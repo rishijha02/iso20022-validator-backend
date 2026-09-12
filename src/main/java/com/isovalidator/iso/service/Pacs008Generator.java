@@ -29,11 +29,13 @@ public class Pacs008Generator implements MessageGenerator {
 
         response.setMessageType("pacs.008");
         response.setGeography(geography);
-        response.setVersion(VERSION);
 
         try {
 
             validateRequest(request);
+
+            String version = resolveVersion(request.getVersion());
+            response.setVersion(version);
 
             String msgId =
                     "MSG-" + System.currentTimeMillis();
@@ -146,7 +148,7 @@ public class Pacs008Generator implements MessageGenerator {
                     </Document>
                     """.formatted(
 
-                    getNamespace(geography),
+                    getNamespace(version),
 
                     msgId,
 
@@ -247,9 +249,27 @@ public class Pacs008Generator implements MessageGenerator {
     }
 
 
-    private String getNamespace(String geography) {
+    private String getNamespace(String version) {
 
-        return "urn:iso:std:iso:20022:tech:xsd:pacs.008.001.14";
+        return "urn:iso:std:iso:20022:tech:xsd:pacs.008." + version;
+    }
+
+
+    private String resolveVersion(String requestedVersion) {
+
+        if (requestedVersion == null || requestedVersion.isBlank()) {
+            return VERSION;
+        }
+
+        String normalized = requestedVersion.trim();
+
+        if (!normalized.matches("001\\.(09|10|11|12|13|14)")) {
+            throw new IllegalArgumentException(
+                    "Unsupported pacs.008 version: " + requestedVersion
+            );
+        }
+
+        return normalized;
     }
 
 

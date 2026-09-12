@@ -7,6 +7,9 @@ public class MessageGenerationRequest {
 
     private String messageType;
 
+    // Requested ISO 20022 message version, e.g. 001.14
+    private String version;
+
     // Debtor
     private String debtorName;
     private String debtorIban;

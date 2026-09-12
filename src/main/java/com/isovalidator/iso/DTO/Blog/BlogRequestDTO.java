@@ -19,4 +19,7 @@ public class BlogRequestDTO {
 
     private boolean published;
 
+    private String coverImageUrl;
+    
+
 }
