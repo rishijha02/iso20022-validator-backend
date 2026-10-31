@@ -1,6 +1,7 @@
 package com.isovalidator.iso.DTO;
 
 import lombok.Data;
+import java.util.Map;
 
 @Data
 public class MessageGenerationRequest {
@@ -26,5 +27,8 @@ public class MessageGenerationRequest {
 
     // Optional
     private String endToEndId;
+
+    // Additional schema-driven fields, used by generators with message-specific inputs.
+    private Map<String, String> fields;
 
 }

@@ -64,6 +64,10 @@ public class MessageGenerationService {
             MessageGenerator generator =
                     generators.get(messageType);
 
+            if (generator == null && (messageType.startsWith("camt.") || messageType.startsWith("pain."))) {
+                generator = generators.get("generic-camt-pain");
+            }
+
             if (generator == null) {
 
                 throw new IllegalArgumentException(
