@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,7 +55,7 @@ public class FeedbackController {
         }
 
         if (!feedbackEmailService.isConfigured()) {
-            log.error("Feedback email request rejected: SMTP configuration is incomplete");
+            log.error("Feedback email request rejected: Resend configuration is incomplete");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("message", "Feedback email is not configured yet. Please try again later."));
         }
@@ -63,7 +63,7 @@ public class FeedbackController {
         try {
             feedbackEmailService.send(request);
             return ResponseEntity.ok(Map.of("message", "Thank you. Your feedback has been sent."));
-        } catch (MailException | IllegalArgumentException exception) {
+        } catch (RestClientException | IllegalArgumentException exception) {
             log.error("Feedback email request failed: {}", exception.getMessage(), exception);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("message", "We could not send your feedback right now. Please try again later."));
