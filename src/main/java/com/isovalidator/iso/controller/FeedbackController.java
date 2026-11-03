@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
@@ -19,6 +21,7 @@ import com.isovalidator.iso.service.FeedbackEmailService;
 @RequestMapping("/v1/api/feedback")
 public class FeedbackController {
 
+    private static final Logger log = LoggerFactory.getLogger(FeedbackController.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     private static final Set<String> FEEDBACK_TYPES = Set.of("Review", "Suggestion");
 
@@ -52,6 +55,7 @@ public class FeedbackController {
         }
 
         if (!feedbackEmailService.isConfigured()) {
+            log.error("Feedback email request rejected: SMTP configuration is incomplete");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("message", "Feedback email is not configured yet. Please try again later."));
         }
@@ -60,6 +64,7 @@ public class FeedbackController {
             feedbackEmailService.send(request);
             return ResponseEntity.ok(Map.of("message", "Thank you. Your feedback has been sent."));
         } catch (MailException | IllegalArgumentException exception) {
+            log.error("Feedback email request failed: {}", exception.getMessage(), exception);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("message", "We could not send your feedback right now. Please try again later."));
         }
