@@ -37,6 +37,7 @@ public class SecurityConfig {
                     "/v1/api/messages/**",
                     "/v1/api/iban/**",
                     "/v1/api/bic/**",
+                    "/v1/api/feedback",
                     "/actuator/health",
                     "/error"
                 ).permitAll()

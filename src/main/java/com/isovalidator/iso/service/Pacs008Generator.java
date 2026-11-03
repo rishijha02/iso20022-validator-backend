@@ -3,7 +3,7 @@ package com.isovalidator.iso.service;
 import com.isovalidator.iso.DTO.IsoResponseDTO;
 import com.isovalidator.iso.DTO.MessageGenerationRequest;
 import com.isovalidator.iso.DTO.MessageGenerationResponse;
-import com.isovalidator.iso.DTO.ValidationError;
+//import com.isovalidator.iso.DTO.ValidationError;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
